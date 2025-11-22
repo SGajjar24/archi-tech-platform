@@ -26,13 +26,14 @@ export default function Navbar() {
     return (
         <nav
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-                    ? "bg-charcoal/80 backdrop-blur-md border-b border-white/10 py-4"
-                    : "bg-transparent py-6"
+                ? "bg-charcoal/80 backdrop-blur-md border-b border-white/10 py-4"
+                : "bg-transparent py-6"
                 }`}
         >
             <div className="container mx-auto px-6 flex items-center justify-between">
-                <Link href="/" className="text-2xl font-serif font-bold text-white tracking-wider">
-                    ARCHI<span className="text-gold">-TECH</span>
+                <Link href="/" className="text-2xl font-serif font-bold tracking-wider relative">
+                    <span className="text-white drop-shadow-[0_0_8px_rgba(0,0,0,0.8)]">ARCHI</span>
+                    <span className="text-gold drop-shadow-[0_0_8px_rgba(0,0,0,0.8)]">-TECH</span>
                 </Link>
 
                 {/* Desktop Menu */}

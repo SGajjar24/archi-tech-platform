@@ -3,26 +3,41 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Send, Loader2 } from "lucide-react";
-import { submitContactForm } from "@/app/actions";
 
 export default function Contact() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [status, setStatus] = useState<{ success: boolean; message: string } | null>(null);
 
-    const handleSubmit = async (formData: FormData) => {
+    const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
         setIsSubmitting(true);
         setStatus(null);
 
-        const result = await submitContactForm(formData);
+        const form = event.currentTarget; // Store form reference BEFORE async operation
+        const formData = new FormData(form);
+        formData.append("access_key", "2a7ef40a-b93c-44a0-a936-ddf7fe33e7a4");
 
-        setIsSubmitting(false);
-        setStatus(result);
+        fetch("https://api.web3forms.com/submit", {
+            method: "POST",
+            body: formData
+        })
+            .then(async (response) => {
+                const data = await response.json();
 
-        if (result.success) {
-            // Optional: Reset form here if needed, but native form action usually handles it or we can use a ref
-            const form = document.getElementById("contact-form") as HTMLFormElement;
-            if (form) form.reset();
-        }
+                if (data.success) {
+                    setStatus({ success: true, message: "Message sent successfully! We'll get back to you soon." });
+                    form.reset(); // Now this works because we stored the reference
+                } else {
+                    setStatus({ success: false, message: data.message || "Something went wrong. Please try again." });
+                }
+            })
+            .catch((error) => {
+                console.error("Form submission error:", error);
+                setStatus({ success: false, message: "Network error. Please check your connection and try again." });
+            })
+            .finally(() => {
+                setIsSubmitting(false);
+            });
     };
 
     return (
@@ -36,7 +51,6 @@ export default function Contact() {
                         </pattern>
                     </defs>
                     <rect width="100%" height="100%" fill="url(#grid)" />
-                    {/* Abstract curves could be added here for more "topological" feel */}
                 </svg>
             </div>
 
@@ -56,8 +70,7 @@ export default function Contact() {
                     </motion.div>
 
                     <motion.form
-                        id="contact-form"
-                        action={handleSubmit}
+                        onSubmit={onSubmit}
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.2 }}
